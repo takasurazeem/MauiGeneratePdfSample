@@ -4,76 +4,73 @@ using iText.Kernel.Pdf;
 using iText.Layout.Element;
 using System.Net;
 using iText.Layout;
+using iText.IO.Font;
+using iText.Kernel.Font;
+using iText.Layout.Font;
+using iText.Layout.Properties;
+using System.Xml;
 
 namespace MauiPdfJsViewerSample
 {
     public partial class MainPage : ContentPage
     {
+        string TheOpeningText = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ";
+
         public MainPage()
         {
             InitializeComponent();
-
-#if ANDROID
-            Microsoft.Maui.Handlers.WebViewHandler.Mapper.AppendToMapping("pdfviewer", (handler, View) =>
-            {
-                handler.PlatformView.Settings.AllowFileAccess = true;
-                handler.PlatformView.Settings.AllowFileAccessFromFileURLs = true;
-                handler.PlatformView.Settings.AllowUniversalAccessFromFileURLs = true;
-            });
-
-            pdfview.Source = $"file:///android_asset/pdfjs/web/viewer.html?file=file:///android_asset/{WebUtility.UrlEncode("mypdf.pdf")}";
-#else
-            pdfview.Source = "mypdf.pdf";
-#endif
         }
 
         private async void Button_Clicked(object sender, EventArgs e)
         {
             string fileName = "mauidotnet.pdf";
+            string arabicText = "بسم الله الرحمن الرحيم"; // Sample Arabic text
 
+            // Define the file path for different platforms
 #if ANDROID
-		var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
-		var filePath = Path.Combine(docsDirectory.AbsoluteFile.Path, fileName);
+            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
+            var filePath = Path.Combine(docsDirectory.AbsoluteFile.Path, fileName);
 #else
             var filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
 #endif
-            using (PdfWriter writer = new PdfWriter(filePath))
+
+            try
             {
-                PdfDocument pdf = new PdfDocument(writer);
-                Document document = new Document(pdf);
-                Paragraph header = new Paragraph("MAUI PDF Sample")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-                    .SetFontSize(20);
+                // Get the application directory
+                string appDirectory = FileSystem.AppDataDirectory;
 
-                document.Add(header);
-                Paragraph subheader = new Paragraph("Welcome to .NET Multi-platform App UI")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-                    .SetFontSize(15);
-                document.Add(subheader);
-                LineSeparator ls = new LineSeparator(new SolidLine());
-                document.Add(ls);
-                var imgStream = await ConvertImageSourceToStreamAsync("dotnet_bot.png");
-                iText.Layout.Element.Image image = new iText.Layout.Element.Image(ImageDataFactory
-                    .Create(imgStream))
-                    .SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
+                // Construct the full path to your font file
+                string fontFilePath = Path.Combine(appDirectory, "Resources", "Raw", "pdms-saleem-quranfont.ttf");
 
-                document.Add(image);
-
-                Paragraph footer = new Paragraph("Don't forget to like and subscribe!")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
-                    .SetFontColor(iText.Kernel.Colors.ColorConstants.LIGHT_GRAY)
-                    .SetFontSize(14);
-
-                document.Add(footer);
-                document.Close();
+                PdfWriter writer = new PdfWriter(filePath);
+                PdfDocument pdfDocument = new PdfDocument(writer);
+                Document document = new Document(pdfDocument);
+                FontSet set = new FontSet();
+                set.AddFont(fontFilePath);
+                //set.AddFont("NotoSansTamil-Regular.ttf");
+                //set.AddFont("FreeSans.ttf");
+                document.SetFontProvider(new FontProvider(set));
+                document.SetProperty(Property.FONT, new String[] { "_PDMS_Saleem_QuranFont" });
+                Paragraph paragraph = new Paragraph();
+                paragraph.SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT);
+                paragraph.Add(TheOpeningText);
+                document.Add(paragraph);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"PDF generation failed: {ex.Message}", "OK");
             }
 
+
+            // Display the PDF in a WebView or PDF viewer
 #if ANDROID
+            // Assuming you are using PDF.js for viewing the PDF inside a WebView
             pdfview.Source = $"file:///android_asset/pdfjs/web/viewer.html?file=file://{WebUtility.UrlEncode(filePath)}";
 #else
-            pdfview.Source = filePath;
+            pdfview.Source = filePath;  // For non-Android platforms, just set the source to the file path
 #endif
         }
+
 
         private async Task<byte[]> ConvertImageSourceToStreamAsync(string imageName)
         {

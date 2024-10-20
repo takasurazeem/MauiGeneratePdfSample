@@ -13,6 +13,7 @@ namespace MauiPdfJsViewerSample
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("pdms-saleem-quranfont.ttf", "PDMS-Saleem");
                 });
 
 #if DEBUG
