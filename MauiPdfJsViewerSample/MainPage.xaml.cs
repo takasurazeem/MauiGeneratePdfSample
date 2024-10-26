@@ -28,7 +28,8 @@ namespace MauiPdfJsViewerSample
 
             // Define the file path for different platforms
 #if ANDROID
-            var docsDirectory = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
+            var docsDirectory =
+                Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
             var filePath = Path.Combine(docsDirectory.AbsoluteFile.Path, fileName);
 #else
             var filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
@@ -65,20 +66,11 @@ namespace MauiPdfJsViewerSample
             // Display the PDF in a WebView or PDF viewer
 #if ANDROID
             // Assuming you are using PDF.js for viewing the PDF inside a WebView
-            pdfview.Source = $"file:///android_asset/pdfjs/web/viewer.html?file=file://{WebUtility.UrlEncode(filePath)}";
+            pdfview.Source =
+                $"file:///android_asset/pdfjs/web/viewer.html?file=file://{WebUtility.UrlEncode(filePath)}";
 #else
             pdfview.Source = filePath;  // For non-Android platforms, just set the source to the file path
 #endif
         }
-
-
-        private async Task<byte[]> ConvertImageSourceToStreamAsync(string imageName)
-        {
-            using var ms = new MemoryStream();
-            using (var stream = await FileSystem.OpenAppPackageFileAsync(imageName))
-                await stream.CopyToAsync(ms);
-            return ms.ToArray();
-        }
     }
-
 }
