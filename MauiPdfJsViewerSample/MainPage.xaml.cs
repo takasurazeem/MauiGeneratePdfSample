@@ -1,6 +1,4 @@
-﻿using iText.IO.Image;
-using iText.Kernel.Pdf.Canvas.Draw;
-using iText.Kernel.Pdf;
+﻿using iText.Kernel.Pdf;
 using iText.Layout.Element;
 using System.Net;
 using iText.Layout;
@@ -8,13 +6,12 @@ using iText.IO.Font;
 using iText.Kernel.Font;
 using iText.Layout.Font;
 using iText.Layout.Properties;
-using System.Xml;
 
 namespace MauiPdfJsViewerSample
 {
     public partial class MainPage : ContentPage
     {
-        string TheOpeningText = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ";
+        private const string TheOpeningText = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ";
 
         public MainPage()
         {
@@ -24,8 +21,6 @@ namespace MauiPdfJsViewerSample
         private async void Button_Clicked(object sender, EventArgs e)
         {
             string fileName = "mauidotnet.pdf";
-            string arabicText = "بسم الله الرحمن الرحيم"; // Sample Arabic text
-
             // Define the file path for different platforms
 #if ANDROID
             var docsDirectory =
