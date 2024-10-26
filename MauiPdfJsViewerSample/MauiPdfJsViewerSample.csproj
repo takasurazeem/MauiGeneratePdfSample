@@ -52,6 +52,7 @@
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
+		<MauiAsset Include="Resources\Pdf\pdms-saleem-quranfont.ttf" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -70,6 +71,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove="Resources\Pdf\*.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Pdf\*.ttf" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="itext.licensing.base" Version="4.1.4" />
 		<PackageReference Include="itext7" Version="8.0.5" />
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
 		<PackageReference Include="itext7.pdfcalligraph" Version="4.0.2" />

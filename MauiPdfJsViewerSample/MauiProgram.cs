@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using iText.Licensing.Base;
+using Microsoft.Extensions.Logging;
 
 namespace MauiPdfJsViewerSample
 {

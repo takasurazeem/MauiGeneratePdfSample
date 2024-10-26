@@ -1,11 +1,11 @@
-﻿using iText.Kernel.Pdf;
-using iText.Layout.Element;
-using System.Net;
-using iText.Layout;
-using iText.IO.Font;
+﻿using iText.IO.Font;
 using iText.Kernel.Font;
+using iText.Kernel.Pdf;
+using iText.Layout.Element;
+using iText.Layout;
 using iText.Layout.Font;
 using iText.Layout.Properties;
+using iText.Licensing.Base;
 
 namespace MauiPdfJsViewerSample
 {
@@ -32,25 +32,31 @@ namespace MauiPdfJsViewerSample
 
             try
             {
-                // Get the application directory
-                string appDirectory = FileSystem.AppDataDirectory;
+                using var licenseResourceStream = await FileSystem.OpenAppPackageFileAsync("itextkey.json");
+                if (licenseResourceStream is FileStream)
+                {
+                    string absolutePath = (licenseResourceStream as FileStream).Name;
+                    LicenseKey.LoadLicenseFile(new FileInfo(absolutePath));
+                }
 
-                // Construct the full path to your font file
-                string fontFilePath = Path.Combine(appDirectory, "Resources", "Raw", "pdms-saleem-quranfont.ttf");
-
-                PdfWriter writer = new PdfWriter(filePath);
-                PdfDocument pdfDocument = new PdfDocument(writer);
-                Document document = new Document(pdfDocument);
-                FontSet set = new FontSet();
-                set.AddFont(fontFilePath);
-                //set.AddFont("NotoSansTamil-Regular.ttf");
-                //set.AddFont("FreeSans.ttf");
-                document.SetFontProvider(new FontProvider(set));
-                document.SetProperty(Property.FONT, new String[] { "_PDMS_Saleem_QuranFont" });
-                Paragraph paragraph = new Paragraph();
-                paragraph.SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT);
-                paragraph.Add(TheOpeningText);
-                document.Add(paragraph);
+                using var resourceStream = await FileSystem.OpenAppPackageFileAsync("pdms-saleem-quranfont.ttf");
+                if (resourceStream is FileStream)
+                {
+                    string absolutePath = (resourceStream as FileStream).Name;
+                    FontSet set = new FontSet();
+                    var added = set.AddFont(absolutePath);
+                    PdfWriter writer = new PdfWriter(filePath);
+                    PdfDocument pdfDocument = new PdfDocument(writer);
+                    Document document = new Document(pdfDocument);
+                    document.SetFontProvider(new FontProvider(set));
+                    document.SetProperty(Property.FONT, new String[] { "_PDMS_Saleem_QuranFont" });
+                    Paragraph paragraph = new Paragraph();
+                    paragraph.SetFont(PdfFontFactory.CreateFont(absolutePath, PdfEncodings.IDENTITY_H));
+                    paragraph.SetFontFamily(new String[] { "_PDMS_Saleem_QuranFont" });
+                    paragraph.SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT);
+                    paragraph.Add(TheOpeningText);
+                    document.Add(paragraph);
+                }
             }
             catch (Exception ex)
             {
